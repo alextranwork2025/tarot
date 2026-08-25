@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 900" role="img" aria-labelledby="title desc">
+  <title id="title">Cánh cửa nội tâm</title>
+  <desc id="desc">Minh họa trừu tượng với vòm tối, mặt trăng và đường tròn thiêng màu vàng cổ.</desc>
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="30%" r="65%">
+      <stop offset="0" stop-color="#B8924F" stop-opacity=".42"/>
+      <stop offset=".42" stop-color="#711F30" stop-opacity=".24"/>
+      <stop offset="1" stop-color="#090B10"/>
+    </radialGradient>
+    <linearGradient id="arch" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#174B48"/>
+      <stop offset=".52" stop-color="#17131B"/>
+      <stop offset="1" stop-color="#711F30"/>
+    </linearGradient>
+  </defs>
+  <rect width="720" height="900" fill="#090B10"/>
+  <rect width="720" height="900" fill="url(#glow)"/>
+  <path d="M96 820V362C96 176 214 78 360 78s264 98 264 284v458z" fill="url(#arch)" stroke="#604A2C" stroke-width="3"/>
+  <path d="M145 804V378c0-150 91-247 215-247s215 97 215 247v426z" fill="none" stroke="#B8924F" stroke-opacity=".55" stroke-width="2"/>
+  <circle cx="360" cy="346" r="134" fill="none" stroke="#B8924F" stroke-opacity=".48" stroke-width="2"/>
+  <circle cx="360" cy="346" r="84" fill="none" stroke="#B8924F" stroke-opacity=".34" stroke-width="2"/>
+  <path d="M390 210a96 96 0 1 0 0 192 73 96 0 1 1 0-192z" fill="#E8DFCF" opacity=".12"/>
+  <path d="M360 168l142 274-142 274-142-274z" fill="none" stroke="#B8924F" stroke-opacity=".42" stroke-width="2"/>
+  <path d="M210 442h300M360 166v552" stroke="#B8924F" stroke-opacity=".32" stroke-width="2"/>
+  <circle cx="360" cy="442" r="22" fill="#B8924F" opacity=".2"/>
+</svg>

@@ -1,26 +1,92 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #090b10;
+  --foreground: #e8dfcf;
+  --card-deep: #17131b;
+  --antique-gold: #b8924f;
+  --wine: #711f30;
+  --dark-jade: #174b48;
+  --stone-mist: #a99e91;
+  --gilded: #604a2c;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-card-deep: var(--card-deep);
+  --color-antique-gold: var(--antique-gold);
+  --color-wine: var(--wine);
+  --color-dark-jade: var(--dark-jade);
+  --color-ivory: var(--foreground);
+  --color-stone-mist: var(--stone-mist);
+  --color-gilded: var(--gilded);
+  --color-obsidian: var(--background);
+  --font-serif: var(--font-cormorant);
+  --font-sans: var(--font-be-vietnam);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  background: var(--background);
 }
 
 body {
-  background: var(--background);
+  min-height: 100vh;
+  overflow-x: hidden;
+  background:
+    radial-gradient(circle at 18% 0%, rgba(113, 31, 48, 0.16), transparent 34%),
+    radial-gradient(circle at 80% 20%, rgba(23, 75, 72, 0.15), transparent 28%),
+    var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-be-vietnam), Arial, sans-serif;
+  line-height: 1.7;
+}
+
+body::before {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  content: "";
+  background-image:
+    linear-gradient(rgba(232, 223, 207, 0.026) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(232, 223, 207, 0.018) 1px, transparent 1px);
+  background-size: 52px 52px;
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.9), transparent 85%);
+}
+
+::selection {
+  background: rgba(184, 146, 79, 0.36);
+  color: var(--foreground);
+}
+
+a,
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.sacred-grain {
+  pointer-events: none;
+  opacity: 0.32;
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(232, 223, 207, 0.09) 0 1px, transparent 1px),
+    radial-gradient(circle at 70% 60%, rgba(184, 146, 79, 0.08) 0 1px, transparent 1px);
+  background-size: 34px 34px, 47px 47px;
+  mix-blend-mode: screen;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
