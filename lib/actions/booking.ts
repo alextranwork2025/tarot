@@ -68,7 +68,6 @@ export async function createAppointmentAction(_previous: ActionState, formData: 
     .select("id,duration_minutes,price,is_active")
     .eq("id", parsed.data.serviceId)
     .eq("is_active", true)
-    .is("deleted_at", null)
     .maybeSingle();
 
   if (serviceError || !service) {
@@ -80,13 +79,18 @@ export async function createAppointmentAction(_previous: ActionState, formData: 
   const range: TimeRange = { start, end };
 
   const [{ data: workingHours }, { data: blockedTimes }, { data: appointments }] = await Promise.all([
-    admin.from("working_hours").select("weekday,start_time,end_time,is_active").eq("is_active", true),
-    admin.from("blocked_times").select("start_time,end_time").lt("start_time", end.toISOString()).gt("end_time", start.toISOString()),
+    admin.from("working_hours").select("day_of_week,start_time,end_time,is_active").eq("is_active", true),
+    admin
+      .from("blocked_times")
+      .select("blocked_date,start_time,end_time")
+      .eq("blocked_date", parsed.data.date)
+      .lt("start_time", format(end, "HH:mm:ss"))
+      .gt("end_time", format(start, "HH:mm:ss")),
     admin
       .from("appointments")
       .select("appointment_date,start_time,end_time")
       .is("deleted_at", null)
-      .not("status", "in", "(cancelled,declined)")
+      .in("status", ["pending", "confirmed"])
       .eq("appointment_date", parsed.data.date)
       .lt("start_time", format(end, "HH:mm:ss"))
       .gt("end_time", format(start, "HH:mm:ss")),
@@ -97,8 +101,8 @@ export async function createAppointmentAction(_previous: ActionState, formData: 
   }
 
   const blockedRanges = (blockedTimes ?? []).map((item) => ({
-    start: new Date(item.start_time),
-    end: new Date(item.end_time),
+    start: combineDateAndTime(item.blocked_date, item.start_time.slice(0, 5)),
+    end: combineDateAndTime(item.blocked_date, item.end_time.slice(0, 5)),
   }));
 
   if (hasBlockedConflict(range, blockedRanges)) {
@@ -129,7 +133,7 @@ export async function createAppointmentAction(_previous: ActionState, formData: 
           full_name: parsed.data.fullName,
           phone: parsed.data.phone,
           email: parsed.data.email || null,
-          birth_date: parsed.data.birthDate || null,
+          date_of_birth: parsed.data.birthDate || null,
         })
         .select("id")
         .single()
@@ -254,7 +258,7 @@ export async function requestCancelAppointmentAction(_previous: ActionState, for
     return { ok: false, message: "Lịch hẹn đã bắt đầu nên không thể gửi yêu cầu hủy." };
   }
 
-  if (["completed", "cancelled", "declined", "no_show"].includes(appointment.status)) {
+  if (["completed", "cancelled", "rejected", "no_show"].includes(appointment.status)) {
     return { ok: false, message: "Lịch hẹn đã ở trạng thái kết thúc." };
   }
 

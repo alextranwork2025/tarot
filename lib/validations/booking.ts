@@ -25,7 +25,7 @@ export const cancelLookupSchema = lookupSchema.extend({
 
 export const adminStatusSchema = z.object({
   appointmentId: z.string().uuid(),
-  status: z.enum(["pending", "confirmed", "declined", "rescheduled", "completed", "cancelled", "no_show"]),
+  status: z.enum(["pending", "confirmed", "completed", "cancelled", "rejected", "no_show"]),
   note: z.string().trim().max(1000).optional(),
 });
 
@@ -45,11 +45,30 @@ export const serviceUpdateSchema = z.object({
 
 export const workingHourUpdateSchema = z.object({
   id: z.string().uuid().optional(),
-  weekday: z.coerce.number().int().min(0).max(6),
+  dayOfWeek: z.coerce.number().int().min(0).max(6),
   startTime: z.string().regex(/^\d{2}:\d{2}$/),
   endTime: z.string().regex(/^\d{2}:\d{2}$/),
   isActive: z.coerce.boolean(),
 });
+
+export const appointmentFormSchema = z.object({
+  appointmentId: z.string().uuid().optional(),
+  customerMode: z.enum(["existing", "quick"]),
+  customerId: z.string().uuid().optional().or(z.literal("")),
+  fullName: z.string().trim().max(120).optional().or(z.literal("")),
+  phone: z.string().trim().optional().or(z.literal("")),
+  serviceId: z.string().uuid("Dịch vụ không hợp lệ."),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Ngày hẹn không hợp lệ."),
+  startTime: z.string().regex(/^\d{2}:\d{2}$/, "Giờ bắt đầu không hợp lệ."),
+  durationMinutes: z.coerce.number().int().min(15).max(480),
+  customerMessage: z.string().trim().max(2000).optional().or(z.literal("")),
+  internalNote: z.string().trim().max(5000).optional().or(z.literal("")),
+  status: z.enum(["pending", "confirmed"]),
+  expectedUpdatedAt: z.string().optional().or(z.literal("")),
+});
+
+export type AppointmentFormInput = z.input<typeof appointmentFormSchema>;
+export type AppointmentFormValues = z.output<typeof appointmentFormSchema>;
 
 export type BookingRequestInput = z.input<typeof bookingRequestSchema>;
 export type BookingRequest = z.output<typeof bookingRequestSchema>;

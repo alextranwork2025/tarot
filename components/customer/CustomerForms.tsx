@@ -160,13 +160,13 @@ export function CustomerChangePasswordForm({ required }: { required: boolean }) 
 export function CustomerProfileForm({
   customer,
 }: {
-  customer: { full_name: string; email: string | null; birth_date: string | null };
+  customer: { full_name: string; email: string | null; date_of_birth: string | null };
 }) {
   const { register, handleSubmit } = useForm<{ fullName: string; email: string; birthDate: string }>({
     defaultValues: {
       fullName: customer.full_name,
       email: customer.email ?? "",
-      birthDate: customer.birth_date ?? "",
+      birthDate: customer.date_of_birth ?? "",
     },
   });
   const [pending, startTransition] = useTransition();

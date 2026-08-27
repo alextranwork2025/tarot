@@ -1,4 +1,5 @@
 import { FinalCTA } from "@/components/FinalCTA";
+import { BlogHighlights } from "@/components/blog/BlogHighlights";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { Hero } from "@/components/Hero";
@@ -18,6 +19,7 @@ export default function Home() {
         <ReadingTypes />
         <SymbolLibrary />
         <QuoteSection />
+        <BlogHighlights />
         <ReaderProfile />
         <FinalCTA />
       </main>

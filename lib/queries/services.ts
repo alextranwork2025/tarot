@@ -42,8 +42,7 @@ export async function getActiveServices() {
     .from("services")
     .select("id,name,description,duration_minutes,price")
     .eq("is_active", true)
-    .is("deleted_at", null)
-    .order("sort_order", { ascending: true });
+    .order("display_order", { ascending: true });
 
   if (error) {
     return fallbackServices;
@@ -56,9 +55,8 @@ export async function getAllServicesForAdmin() {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("services")
-    .select("id,name,description,duration_minutes,price,is_active,sort_order")
-    .is("deleted_at", null)
-    .order("sort_order", { ascending: true });
+    .select("id,name,description,duration_minutes,price,is_active,display_order")
+    .order("display_order", { ascending: true });
 
   if (error) {
     throw new Error("Không thể tải danh sách dịch vụ.");

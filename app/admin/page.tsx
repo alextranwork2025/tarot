@@ -28,6 +28,7 @@ export default async function AdminPage() {
             ["/admin/khach-hang", "Khách hàng"],
             ["/admin/dich-vu", "Dịch vụ"],
             ["/admin/lich-lam-viec", "Lịch làm việc"],
+            ["/admin/bai-viet", "Bài viết"],
           ].map(([href, label]) => (
             <Link key={href} href={href} className="rounded-full border border-gilded/50 px-4 py-2 text-sm text-stone-mist hover:border-antique-gold hover:text-antique-gold">
               {label}
@@ -40,7 +41,7 @@ export default async function AdminPage() {
             ["Chờ xác nhận", dashboard.counts.pending],
             ["Đã xác nhận", dashboard.counts.confirmed],
             ["Hoàn thành", dashboard.counts.completed],
-            ["Đã hủy", dashboard.counts.cancelled],
+            ["Đã hủy/từ chối", dashboard.counts.cancelledOrRejected],
           ].map(([label, value]) => (
             <article key={label} className="rounded-lg border border-gilded/40 bg-card-deep/75 p-5">
               <p className="text-sm text-stone-mist">{label}</p>

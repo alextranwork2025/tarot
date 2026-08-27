@@ -12,7 +12,7 @@ export type CustomerAccess =
         full_name: string;
         phone: string;
         email: string | null;
-        birth_date: string | null;
+        date_of_birth: string | null;
         must_change_password: boolean;
       };
     }
@@ -44,7 +44,7 @@ export async function getCustomerAccess(): Promise<CustomerAccess> {
   const admin = createAdminClient();
   const { data: customer, error } = await admin
     .from("customers")
-    .select("id,auth_user_id,full_name,phone,email,birth_date,must_change_password")
+    .select("id,auth_user_id,full_name,phone,email,date_of_birth,must_change_password")
     .eq("auth_user_id", userId)
     .maybeSingle();
 

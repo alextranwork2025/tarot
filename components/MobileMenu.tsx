@@ -8,6 +8,7 @@ import { navigationItems } from "@/data/navigation";
 
 const mobileNavigation = [
   ...navigationItems,
+  { label: "Blog", href: "/blog" },
   { label: "Đặt lịch", href: "/dat-lich" },
   { label: "Tra cứu", href: "/tra-cuu-lich-hen" },
   { label: "Tài khoản", href: "/khach-hang/login" },

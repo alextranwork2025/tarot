@@ -81,6 +81,10 @@ export async function requireAdminProfile() {
   const access = await getAdminAccess();
 
   if (!access.ok) {
+    if (access.reason !== "no-session") {
+      throw new Error("Bạn không có quyền truy cập khu vực quản trị.");
+    }
+
     const params = new URLSearchParams({ reason: access.reason });
     if (access.detail) {
       params.set("detail", access.detail);

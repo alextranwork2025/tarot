@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { canTransitionStatus } from "@/lib/booking/status";
+import { appointmentStatusLabels, canTransitionAppointmentStatus, canTransitionStatus, isTerminalStatus } from "@/lib/booking/status";
 import {
   calculateEndTime,
   combineDateAndTime,
@@ -41,7 +41,7 @@ describe("booking time calculations", () => {
       end: combineDateAndTime("2026-09-07", "09:30"),
     };
     expect(
-      isInsideWorkingHours(range, [{ weekday: 1, start_time: "09:00", end_time: "17:00", is_active: true }]),
+      isInsideWorkingHours(range, [{ day_of_week: 1, start_time: "09:00", end_time: "17:00", is_active: true }]),
     ).toBe(false);
   });
 
@@ -73,6 +73,23 @@ describe("lookup and status rules", () => {
 
   it("allows valid status transitions and rejects invalid ones", () => {
     expect(canTransitionStatus("pending", "confirmed")).toBe(true);
+    expect(canTransitionAppointmentStatus("pending", "rejected")).toBe(true);
+    expect(canTransitionAppointmentStatus("confirmed", "no_show")).toBe(true);
+    expect(canTransitionAppointmentStatus("pending", "completed")).toBe(false);
+    expect(canTransitionAppointmentStatus("cancelled", "confirmed")).toBe(false);
     expect(canTransitionStatus("completed", "pending")).toBe(false);
+  });
+
+  it("labels every live appointment status in Vietnamese", () => {
+    expect(appointmentStatusLabels.rejected).toBe("Đã từ chối");
+    expect(appointmentStatusLabels.no_show).toBe("Không đến");
+  });
+
+  it("treats completed, cancelled, rejected, and no-show as terminal states", () => {
+    expect(isTerminalStatus("completed")).toBe(true);
+    expect(isTerminalStatus("cancelled")).toBe(true);
+    expect(isTerminalStatus("rejected")).toBe(true);
+    expect(isTerminalStatus("no_show")).toBe(true);
+    expect(isTerminalStatus("confirmed")).toBe(false);
   });
 });

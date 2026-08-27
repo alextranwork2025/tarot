@@ -189,7 +189,7 @@ export async function updateCustomerProfileAction(
     .update({
       full_name: parsed.data.fullName,
       email: parsed.data.email || null,
-      birth_date: parsed.data.birthDate || null,
+      date_of_birth: parsed.data.birthDate || null,
     })
     .eq("id", customer.id);
 

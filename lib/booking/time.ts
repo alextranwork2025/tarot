@@ -8,7 +8,7 @@ export type TimeRange = {
 };
 
 export type WorkingHour = {
-  weekday: number;
+  day_of_week: number;
   start_time: string;
   end_time: string;
   is_active: boolean;
@@ -33,7 +33,7 @@ export function overlaps(a: TimeRange, b: TimeRange) {
 export function isInsideWorkingHours(range: TimeRange, hours: WorkingHour[]) {
   const weekday = range.start.getDay();
   return hours
-    .filter((hour) => hour.is_active && hour.weekday === weekday)
+    .filter((hour) => hour.is_active && hour.day_of_week === weekday)
     .some((hour) => {
       const date = format(range.start, "yyyy-MM-dd");
       const workStart = combineDateAndTime(date, hour.start_time.slice(0, 5));
