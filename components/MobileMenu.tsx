@@ -1,32 +1,67 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { X } from "lucide-react";
-import type { MouseEvent } from "react";
+import { CalendarDays, LogIn, ShieldCheck, X } from "lucide-react";
+import Link from "next/link";
+import { useEffect, useRef } from "react";
 
-import { navigationItems } from "@/data/navigation";
+import { siteSignOutAction } from "@/lib/actions/auth";
+import type { HeaderViewer } from "@/types/header";
 
-const mobileNavigation = [
-  ...navigationItems,
-  { label: "Blog", href: "/blog" },
-  { label: "Đặt lịch", href: "/dat-lich" },
-  { label: "Tra cứu", href: "/tra-cuu-lich-hen" },
-  { label: "Tài khoản", href: "/khach-hang/login" },
-];
+export type SiteNavigationItem = {
+  label: string;
+  href: string;
+  match: string[];
+  anchorId?: string;
+};
 
 type MobileMenuProps = {
   open: boolean;
   activeHref: string;
+  navItems: SiteNavigationItem[];
+  viewer: HeaderViewer;
+  bookingActive: boolean;
   onClose: () => void;
 };
 
-export function MobileMenu({ open, activeHref, onClose }: MobileMenuProps) {
-  const reduceMotion = useReducedMotion();
+const customerLinks = [
+  { label: "Lịch hẹn của tôi", href: "/khach-hang" },
+  { label: "Thông tin cá nhân", href: "/khach-hang/ho-so" },
+  { label: "Đổi mật khẩu", href: "/khach-hang/doi-mat-khau" },
+];
 
-  const handleClick = (event: MouseEvent<HTMLAnchorElement>) => {
-    event.currentTarget.blur();
-    onClose();
-  };
+export function MobileMenu({
+  open,
+  activeHref,
+  navItems,
+  viewer,
+  bookingActive,
+  onClose,
+}: MobileMenuProps) {
+  const reduceMotion = useReducedMotion();
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    closeButtonRef.current?.focus();
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [onClose, open]);
 
   return (
     <AnimatePresence>
@@ -34,25 +69,30 @@ export function MobileMenu({ open, activeHref, onClose }: MobileMenuProps) {
         <>
           <motion.button
             type="button"
-            className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm md:hidden"
-            aria-label="Đóng menu"
+            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm lg:hidden"
+            aria-label="Đóng menu điều hướng"
             onClick={onClose}
             initial={reduceMotion ? false : { opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           />
           <motion.aside
-            className="fixed right-0 top-0 z-50 flex h-dvh w-[min(88vw,360px)] flex-col border-l border-gilded/40 bg-obsidian/95 p-6 shadow-2xl shadow-black/50 md:hidden"
+            id="site-mobile-menu"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Menu điều hướng"
+            className="fixed right-0 top-0 z-50 flex h-dvh w-[min(88vw,380px)] flex-col border-l border-gilded/40 bg-obsidian/96 p-6 shadow-2xl shadow-black/50 backdrop-blur-xl lg:hidden"
             initial={reduceMotion ? false : { x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
           >
             <div className="flex items-center justify-between">
-              <a href="#home" className="font-serif text-2xl text-ivory" onClick={handleClick}>
+              <Link href="/" className="font-serif text-2xl text-ivory" onClick={onClose}>
                 Huyền Cảnh
-              </a>
+              </Link>
               <button
+                ref={closeButtonRef}
                 type="button"
                 className="grid size-11 place-items-center rounded-full border border-gilded/45 text-ivory transition hover:border-antique-gold focus:outline-none focus:ring-2 focus:ring-antique-gold"
                 aria-label="Đóng menu"
@@ -61,29 +101,107 @@ export function MobileMenu({ open, activeHref, onClose }: MobileMenuProps) {
                 <X size={20} aria-hidden="true" />
               </button>
             </div>
-            <nav className="mt-12 flex flex-col gap-3" aria-label="Điều hướng di động">
-              {mobileNavigation.map((item) => (
-                <a
+
+            <nav className="mt-10 flex flex-col gap-2" aria-label="Điều hướng di động">
+              {navItems.map((item) => (
+                <Link
                   key={item.href}
                   href={item.href}
-                  onClick={handleClick}
+                  onClick={onClose}
                   aria-current={activeHref === item.href ? "page" : undefined}
                   className="rounded-sm border-b border-gilded/20 px-1 py-4 text-lg text-stone-mist transition hover:text-ivory focus:outline-none focus:ring-2 focus:ring-antique-gold aria-[current=page]:text-antique-gold"
                 >
                   {item.label}
-                </a>
+                </Link>
               ))}
             </nav>
-            <a
+
+            <div className="mt-8 border-t border-gilded/25 pt-5">
+              <MobileAccount viewer={viewer} onClose={onClose} />
+            </div>
+
+            <Link
               href="/dat-lich"
-              onClick={handleClick}
-              className="mt-auto inline-flex min-h-12 items-center justify-center rounded-full border border-antique-gold bg-antique-gold px-6 text-sm font-semibold uppercase tracking-[0.16em] text-obsidian transition hover:bg-ivory focus:outline-none focus:ring-2 focus:ring-ivory"
+              onClick={onClose}
+              aria-current={bookingActive ? "page" : undefined}
+              className="mt-auto inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-antique-gold bg-antique-gold px-6 text-sm font-semibold uppercase tracking-[0.14em] text-obsidian transition hover:bg-ivory focus:outline-none focus:ring-2 focus:ring-ivory"
             >
+              <CalendarDays size={17} aria-hidden="true" />
               Đặt lịch
-            </a>
+            </Link>
           </motion.aside>
         </>
       ) : null}
     </AnimatePresence>
+  );
+}
+
+function MobileAccount({
+  viewer,
+  onClose,
+}: {
+  viewer: HeaderViewer;
+  onClose: () => void;
+}) {
+  if (viewer.kind === "guest") {
+    return (
+      <Link
+        href="/khach-hang/login"
+        onClick={onClose}
+        className="inline-flex min-h-11 items-center gap-2 text-base font-semibold text-ivory transition hover:text-antique-gold focus:outline-none focus:ring-2 focus:ring-antique-gold"
+      >
+        <LogIn size={18} aria-hidden="true" />
+        Đăng nhập
+      </Link>
+    );
+  }
+
+  if (viewer.kind === "staff") {
+    return (
+      <div className="space-y-3">
+        <Link
+          href="/admin"
+          onClick={onClose}
+          className="inline-flex min-h-11 items-center gap-2 text-base font-semibold text-ivory transition hover:text-antique-gold focus:outline-none focus:ring-2 focus:ring-antique-gold"
+        >
+          <ShieldCheck size={18} aria-hidden="true" />
+          Quản trị
+        </Link>
+        <form action={siteSignOutAction}>
+          <button
+            type="submit"
+            className="block min-h-11 text-base font-semibold text-stone-mist transition hover:text-antique-gold focus:outline-none focus:ring-2 focus:ring-antique-gold"
+          >
+            Đăng xuất
+          </button>
+        </form>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <p className="mb-3 text-sm font-semibold text-antique-gold">{viewer.name}</p>
+      <div className="flex flex-col gap-1">
+        {customerLinks.map((link) => (
+          <Link
+            key={link.href}
+            href={link.href}
+            onClick={onClose}
+            className="rounded-sm py-2 text-base text-stone-mist transition hover:text-ivory focus:outline-none focus:ring-2 focus:ring-antique-gold"
+          >
+            {link.label}
+          </Link>
+        ))}
+        <form action={siteSignOutAction} className="pt-1">
+          <button
+            type="submit"
+            className="block min-h-11 text-base font-semibold text-stone-mist transition hover:text-antique-gold focus:outline-none focus:ring-2 focus:ring-antique-gold"
+          >
+            Đăng xuất
+          </button>
+        </form>
+      </div>
+    </div>
   );
 }

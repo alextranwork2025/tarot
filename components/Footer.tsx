@@ -1,4 +1,5 @@
 import { Mail, MessageCircle, Send } from "lucide-react";
+import Link from "next/link";
 
 import { navigationItems } from "@/data/navigation";
 
@@ -9,18 +10,18 @@ export function Footer() {
     <footer className="border-t border-gilded/30 bg-[#07090d] px-5 py-12 md:px-8">
       <div className="mx-auto grid max-w-7xl gap-10 md:grid-cols-[1.2fr_0.8fr_0.6fr]">
         <div>
-          <a href="#home" className="font-serif text-3xl font-semibold text-ivory focus:outline-none focus:ring-2 focus:ring-antique-gold">
+          <Link href="/" className="font-serif text-3xl font-semibold text-ivory focus:outline-none focus:ring-2 focus:ring-antique-gold">
             Huyền Cảnh
-          </a>
+          </Link>
           <p className="mt-4 max-w-md text-sm leading-7 text-stone-mist">
             Một không gian Tarot dành cho chiêm nghiệm, biểu tượng và hành trình trở về với nội tâm.
           </p>
         </div>
         <nav className="flex flex-col gap-3" aria-label="Điều hướng chân trang">
           {navigationItems.map((item) => (
-            <a key={item.href} href={item.href} className="text-sm text-stone-mist transition hover:text-antique-gold focus:outline-none focus:ring-2 focus:ring-antique-gold">
+            <Link key={item.href} href={item.href} className="text-sm text-stone-mist transition hover:text-antique-gold focus:outline-none focus:ring-2 focus:ring-antique-gold">
               {item.label}
-            </a>
+            </Link>
           ))}
         </nav>
         <div>

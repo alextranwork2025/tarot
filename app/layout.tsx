@@ -34,7 +34,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="vi" className={`${cormorant.variable} ${beVietnam.variable}`}>
+    <html
+      lang="vi"
+      data-scroll-behavior="smooth"
+      className={`${cormorant.variable} ${beVietnam.variable}`}
+    >
       <body>{children}</body>
     </html>
   );

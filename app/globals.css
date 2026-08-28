@@ -32,7 +32,12 @@
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 6rem;
   background: var(--background);
+}
+
+[id] {
+  scroll-margin-top: 6rem;
 }
 
 body {

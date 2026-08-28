@@ -1,6 +1,6 @@
 export const navigationItems = [
-  { label: "Trang chủ", href: "#home" },
-  { label: "Trải bài", href: "#readings" },
-  { label: "Thư viện", href: "#library" },
-  { label: "Về chúng tôi", href: "#about" },
+  { label: "Trang chủ", href: "/" },
+  { label: "Dịch vụ", href: "/#readings" },
+  { label: "Bài viết", href: "/blog" },
+  { label: "Giới thiệu", href: "/gioi-thieu" },
 ];
