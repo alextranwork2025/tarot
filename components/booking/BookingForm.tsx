@@ -21,9 +21,9 @@ function SubmitButton() {
   );
 }
 
-export function BookingForm({ services }: { services: PublicService[] }) {
+export function BookingForm({ services, initialServiceId }: { services: PublicService[]; initialServiceId?: string }) {
   const [state, formAction] = useActionState(createAppointmentAction, initialState);
-  const [selectedService, setSelectedService] = useState(services[0]?.id ?? "");
+  const [selectedService, setSelectedService] = useState(initialServiceId ?? services[0]?.id ?? "");
   const selected = useMemo(
     () => services.find((service) => service.id === selectedService),
     [selectedService, services],
@@ -48,7 +48,7 @@ export function BookingForm({ services }: { services: PublicService[] }) {
                 className="sr-only"
               />
               <span className="block font-serif text-2xl text-ivory">{service.name}</span>
-              <span className="mt-2 block text-sm leading-6 text-stone-mist">{service.description}</span>
+              <span className="mt-2 block text-sm leading-6 text-stone-mist">{service.short_description ?? service.description}</span>
               <span className="mt-4 block text-sm text-antique-gold">
                 {service.duration_minutes} phút · {service.price === 0 ? "Giá đang cập nhật" : `${service.price.toLocaleString("vi-VN")}đ`}
               </span>

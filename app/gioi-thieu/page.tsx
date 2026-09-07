@@ -53,7 +53,7 @@ export default function AboutPage() {
 function AboutHero() {
   return (
     <section className="relative min-h-[72svh] border-b border-gilded/25 px-5 py-20 md:px-8 md:py-28">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_22%_18%,rgba(113,31,48,0.24),transparent_32%),radial-gradient(circle_at_78%_30%,rgba(23,75,72,0.2),transparent_28%),linear-gradient(180deg,rgba(9,11,16,0.2),#090B10_94%)]" />
+      <div className="about-fox-atmosphere absolute inset-0" />
       <div className="absolute inset-0 sacred-grain" />
       <SacredGeometry
         variant="moon"
@@ -133,8 +133,8 @@ function FormationSection() {
 
 function PhilosophySection() {
   return (
-    <section className="relative border-y border-gilded/25 bg-[#0d1115] px-5 py-24 md:px-8 md:py-32">
-      <div className="absolute inset-0 bg-[linear-gradient(120deg,rgba(113,31,48,0.16),transparent_38%),radial-gradient(circle_at_82%_20%,rgba(184,146,79,0.12),transparent_24%)]" />
+    <section className="relative border-y border-gilded/25 bg-card-muted px-5 py-24 md:px-8 md:py-32">
+      <div className="fox-section-wash absolute inset-0" />
       <div className="relative mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[0.9fr_1fr]">
         <Reveal>
           <div className="relative min-h-[460px] overflow-hidden rounded-lg border border-gilded/35 bg-card-deep/76 p-8">

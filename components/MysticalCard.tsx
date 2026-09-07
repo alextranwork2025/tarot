@@ -54,8 +54,8 @@ export function MysticalCard({
         pointerY.set(0.5);
       }}
     >
-      <div className="absolute -inset-8 -z-10 rounded-full bg-antique-gold/20 blur-3xl transition group-hover:bg-antique-gold/30" />
-      <div className="relative flex h-full flex-col overflow-hidden rounded-[22px] border border-gilded/80 bg-[radial-gradient(circle_at_50%_18%,rgba(184,146,79,0.22),transparent_33%),linear-gradient(160deg,rgba(23,75,72,0.5),rgba(23,19,27,0.95)_45%,rgba(113,31,48,0.38))] p-6">
+      <div className="absolute -inset-8 -z-10 rounded-full bg-fox-red/20 blur-3xl transition group-hover:bg-fox-glow/24" />
+      <div className="mystical-card-surface relative flex h-full flex-col overflow-hidden rounded-[22px] border border-gilded/80 p-6">
         <div className="absolute inset-4 rounded-[18px] border border-antique-gold/30" />
         <SacredGeometry className="absolute left-1/2 top-1/2 h-[78%] w-[78%] -translate-x-1/2 -translate-y-1/2 text-antique-gold/60" />
         <div className="relative z-10 flex items-center justify-between text-antique-gold">

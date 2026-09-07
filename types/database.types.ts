@@ -9,6 +9,7 @@ export type AppointmentStatus =
   | "no_show";
 
 export type BlogPostStatus = "draft" | "published" | "archived";
+export type ServiceStatus = "draft" | "published" | "archived";
 
 type Role = "admin" | "staff";
 
@@ -70,6 +71,20 @@ export type Database = {
           id: string;
           name: string;
           description: string | null;
+          short_description: string | null;
+          content: string | null;
+          cover_image_url: string | null;
+          suitable_for: string | null;
+          benefits: string | null;
+          process: string | null;
+          preparation_notes: string | null;
+          faq: Json;
+          testimonials: Json;
+          seo_title: string | null;
+          seo_description: string | null;
+          status: ServiceStatus;
+          published_at: string | null;
+          deleted_at: string | null;
           duration_minutes: number;
           price: number;
           is_active: boolean;
@@ -83,6 +98,20 @@ export type Database = {
           name: string;
           slug: string;
           description?: string | null;
+          short_description?: string | null;
+          content?: string | null;
+          cover_image_url?: string | null;
+          suitable_for?: string | null;
+          benefits?: string | null;
+          process?: string | null;
+          preparation_notes?: string | null;
+          faq?: Json;
+          testimonials?: Json;
+          seo_title?: string | null;
+          seo_description?: string | null;
+          status?: ServiceStatus;
+          published_at?: string | null;
+          deleted_at?: string | null;
           duration_minutes: number;
           price?: number;
           is_active?: boolean;
@@ -267,6 +296,7 @@ export type Database = {
       appointment_source: "website" | "admin";
       appointment_status: AppointmentStatus;
       blog_post_status: BlogPostStatus;
+      service_status: ServiceStatus;
     };
     CompositeTypes: Record<string, never>;
   };

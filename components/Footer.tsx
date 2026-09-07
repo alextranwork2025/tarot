@@ -7,7 +7,7 @@ export function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="border-t border-gilded/30 bg-[#07090d] px-5 py-12 md:px-8">
+    <footer className="border-t border-gilded/30 bg-card-muted px-5 py-12 md:px-8">
       <div className="mx-auto grid max-w-7xl gap-10 md:grid-cols-[1.2fr_0.8fr_0.6fr]">
         <div>
           <Link href="/" className="font-serif text-3xl font-semibold text-ivory focus:outline-none focus:ring-2 focus:ring-antique-gold">

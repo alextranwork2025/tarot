@@ -100,28 +100,34 @@ export async function getAdminBlogPost(id: string) {
 }
 
 export async function getPublishedBlogPosts(params: { page?: number; pageSize?: number } = {}) {
-  const admin = createAdminClient();
   const page = sanitizePage(params.page);
   const pageSize = params.pageSize ?? 9;
   const from = (page - 1) * pageSize;
   const to = from + pageSize - 1;
 
-  const { data, error, count } = await admin
-    .from("blog_posts")
-    .select("id,title,slug,excerpt,cover_image_url,status,author_id,published_at,created_at,updated_at", { count: "exact" })
-    .eq("status", "published")
-    .not("published_at", "is", null)
-    .lte("published_at", new Date().toISOString())
-    .is("deleted_at", null)
-    .order("published_at", { ascending: false })
-    .range(from, to);
+  try {
+    const admin = createAdminClient();
+    const { data, error, count } = await admin
+      .from("blog_posts")
+      .select("id,title,slug,excerpt,cover_image_url,status,author_id,published_at,created_at,updated_at", { count: "exact" })
+      .eq("status", "published")
+      .not("published_at", "is", null)
+      .lte("published_at", new Date().toISOString())
+      .is("deleted_at", null)
+      .order("published_at", { ascending: false })
+      .range(from, to);
 
-  if (error) {
-    throw new Error(`Không thể tải bài viết đã xuất bản: ${error.message}`);
+    if (error) {
+      console.warn("Could not load published blog posts.", error);
+      return { posts: [], count: 0, page, pageSize };
+    }
+
+    const posts = await hydrateAuthors(data);
+    return { posts: posts as BlogPostSummary[], count: count ?? 0, page, pageSize };
+  } catch (error) {
+    console.warn("Could not load published blog posts.", error);
+    return { posts: [], count: 0, page, pageSize };
   }
-
-  const posts = await hydrateAuthors(data);
-  return { posts: posts as BlogPostSummary[], count: count ?? 0, page, pageSize };
 }
 
 export async function getLatestPublishedBlogPosts(limit = 3) {

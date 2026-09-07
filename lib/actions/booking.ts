@@ -36,6 +36,30 @@ function isExclusionError(error: { code?: string; message?: string } | null) {
   return error?.code === "23P01" || error?.message?.toLowerCase().includes("conflict");
 }
 
+async function findBookableService(admin: ReturnType<typeof createAdminClient>, serviceId: string) {
+  const full = await admin
+    .from("services")
+    .select("id,duration_minutes,price,is_active")
+    .eq("id", serviceId)
+    .eq("is_active", true)
+    .eq("status", "published")
+    .not("published_at", "is", null)
+    .lte("published_at", new Date().toISOString())
+    .is("deleted_at", null)
+    .maybeSingle();
+
+  if (!full.error) {
+    return full;
+  }
+
+  return admin
+    .from("services")
+    .select("id,duration_minutes,price,is_active")
+    .eq("id", serviceId)
+    .eq("is_active", true)
+    .maybeSingle();
+}
+
 export async function createAppointmentAction(_previous: ActionState, formData: FormData): Promise<ActionState> {
   const parsed = bookingRequestSchema.safeParse({
     serviceId: toFormValue(formData, "serviceId"),
@@ -63,12 +87,7 @@ export async function createAppointmentAction(_previous: ActionState, formData: 
   }
 
   const admin = createAdminClient();
-  const { data: service, error: serviceError } = await admin
-    .from("services")
-    .select("id,duration_minutes,price,is_active")
-    .eq("id", parsed.data.serviceId)
-    .eq("is_active", true)
-    .maybeSingle();
+  const { data: service, error: serviceError } = await findBookableService(admin, parsed.data.serviceId);
 
   if (serviceError || !service) {
     return { ok: false, message: "Dịch vụ hiện không khả dụng." };

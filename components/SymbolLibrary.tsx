@@ -35,7 +35,7 @@ export function SymbolLibrary() {
                 delay={index * 0.06}
                 className={featured ? "lg:col-span-2 lg:row-span-2" : ""}
               >
-                <article className={`group h-full rounded-lg border border-gilded/40 bg-card-deep/74 p-6 transition hover:border-antique-gold/85 hover:bg-[#1c1720] ${featured ? "min-h-[360px] p-8" : "min-h-[220px]"}`}>
+                <article className={`group h-full rounded-lg border border-gilded/40 bg-card-deep/74 p-6 transition hover:border-fox-red/85 hover:bg-card-muted ${featured ? "min-h-[360px] p-8" : "min-h-[220px]"}`}>
                   <div className="flex items-start justify-between gap-5">
                     <div className="grid size-13 place-items-center rounded-full border border-gilded/55 text-antique-gold">
                       <Icon size={featured ? 30 : 24} strokeWidth={1.3} aria-hidden="true" />

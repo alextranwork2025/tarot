@@ -6,7 +6,7 @@ import { Reveal } from "@/components/Reveal";
 export function Hero() {
   return (
     <section id="home" className="relative min-h-[94svh] overflow-hidden pt-28">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_72%_34%,rgba(184,146,79,0.2),transparent_25%),radial-gradient(circle_at_20%_18%,rgba(113,31,48,0.24),transparent_34%),linear-gradient(180deg,rgba(9,11,16,0.5),#090B10_90%)]" />
+      <div className="hero-fox-atmosphere absolute inset-0" />
       <div className="absolute inset-0 sacred-grain" />
       <div className="relative mx-auto grid min-h-[calc(94svh-7rem)] max-w-7xl items-center gap-14 px-5 pb-16 md:grid-cols-[1.05fr_0.95fr] md:px-8">
         <Reveal>

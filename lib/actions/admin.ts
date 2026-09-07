@@ -50,6 +50,30 @@ function redirectAfterSuccess(path?: string) {
   }
 }
 
+async function findBookableService(admin: ReturnType<typeof createAdminClient>, serviceId: string) {
+  const full = await admin
+    .from("services")
+    .select("id,duration_minutes,is_active")
+    .eq("id", serviceId)
+    .eq("is_active", true)
+    .eq("status", "published")
+    .not("published_at", "is", null)
+    .lte("published_at", new Date().toISOString())
+    .is("deleted_at", null)
+    .maybeSingle();
+
+  if (!full.error) {
+    return full;
+  }
+
+  return admin
+    .from("services")
+    .select("id,duration_minutes,is_active")
+    .eq("id", serviceId)
+    .eq("is_active", true)
+    .maybeSingle();
+}
+
 async function validateAppointmentSlot(params: {
   serviceId: string;
   date: string;
@@ -67,12 +91,7 @@ async function validateAppointmentSlot(params: {
   const range: TimeRange = { start, end };
 
   const [{ data: service }, { data: workingHours }, { data: blockedTimes }, { data: appointments }] = await Promise.all([
-    admin
-      .from("services")
-      .select("id,duration_minutes,is_active")
-      .eq("id", params.serviceId)
-      .eq("is_active", true)
-      .maybeSingle(),
+    findBookableService(admin, params.serviceId),
     admin.from("working_hours").select("day_of_week,start_time,end_time,is_active").eq("is_active", true),
     admin
       .from("blocked_times")

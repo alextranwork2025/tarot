@@ -1,23 +1,34 @@
 @import "tailwindcss";
 
 :root {
-  --background: #090b10;
-  --foreground: #e8dfcf;
-  --card-deep: #17131b;
-  --antique-gold: #b8924f;
-  --wine: #711f30;
-  --dark-jade: #174b48;
-  --stone-mist: #a99e91;
-  --gilded: #604a2c;
+  --background: #090708;
+  --foreground: #f4e9e6;
+  --card-deep: #18090d;
+  --card-muted: #120f11;
+  --fox-red: #a9152b;
+  --scarlet: #e0353f;
+  --fox-glow: #ff6073;
+  --antique-gold: #c79a45;
+  --plum: #542052;
+  --stone-mist: #bca7aa;
+  --gilded: #6c2330;
+  --disabled: #5d5153;
+  --shadow-red: color-mix(in srgb, var(--fox-red) 34%, transparent);
+  --focus-ring: color-mix(in srgb, var(--fox-glow) 78%, var(--foreground));
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card-deep: var(--card-deep);
+  --color-card-muted: var(--card-muted);
+  --color-fox-red: var(--fox-red);
+  --color-scarlet: var(--scarlet);
+  --color-fox-glow: var(--fox-glow);
   --color-antique-gold: var(--antique-gold);
-  --color-wine: var(--wine);
-  --color-dark-jade: var(--dark-jade);
+  --color-wine: var(--fox-red);
+  --color-dark-jade: var(--plum);
+  --color-plum: var(--plum);
   --color-ivory: var(--foreground);
   --color-stone-mist: var(--stone-mist);
   --color-gilded: var(--gilded);
@@ -44,8 +55,8 @@ body {
   min-height: 100vh;
   overflow-x: hidden;
   background:
-    radial-gradient(circle at 18% 0%, rgba(113, 31, 48, 0.16), transparent 34%),
-    radial-gradient(circle at 80% 20%, rgba(23, 75, 72, 0.15), transparent 28%),
+    radial-gradient(circle at 16% 0%, color-mix(in srgb, var(--fox-red) 18%, transparent), transparent 34%),
+    radial-gradient(circle at 84% 18%, color-mix(in srgb, var(--plum) 15%, transparent), transparent 30%),
     var(--background);
   color: var(--foreground);
   font-family: var(--font-be-vietnam), Arial, sans-serif;
@@ -59,14 +70,14 @@ body::before {
   pointer-events: none;
   content: "";
   background-image:
-    linear-gradient(rgba(232, 223, 207, 0.026) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(232, 223, 207, 0.018) 1px, transparent 1px);
+    linear-gradient(color-mix(in srgb, var(--foreground) 2.6%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--foreground) 1.8%, transparent) 1px, transparent 1px);
   background-size: 52px 52px;
-  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.9), transparent 85%);
+  mask-image: linear-gradient(to bottom, color-mix(in srgb, var(--background) 90%, transparent), transparent 85%);
 }
 
 ::selection {
-  background: rgba(184, 146, 79, 0.36);
+  background: color-mix(in srgb, var(--scarlet) 42%, transparent);
   color: var(--foreground);
 }
 
@@ -75,12 +86,98 @@ button {
   -webkit-tap-highlight-color: transparent;
 }
 
+:where(a, button, input, select, textarea):focus-visible {
+  outline-color: var(--focus-ring);
+  --tw-ring-color: var(--focus-ring);
+}
+
+:where(button, input, select, textarea):disabled {
+  color: var(--stone-mist);
+  cursor: not-allowed;
+  filter: saturate(0.45);
+}
+
+:where(a, button).bg-antique-gold {
+  border-color: var(--scarlet);
+  background-color: var(--scarlet);
+  color: var(--foreground);
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--scarlet) 18%, transparent);
+}
+
+:where(a, button).bg-antique-gold:hover {
+  border-color: var(--fox-glow);
+  background-color: var(--fox-glow);
+  color: var(--background);
+  box-shadow: 0 10px 30px color-mix(in srgb, var(--fox-glow) 28%, transparent);
+}
+
+:where(a, button).bg-antique-gold:active {
+  border-color: var(--fox-red);
+  background-color: var(--fox-red);
+  color: var(--foreground);
+  transform: translateY(1px);
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--fox-red) 22%, transparent);
+}
+
+:where(a, button).bg-antique-gold:disabled {
+  border-color: var(--disabled);
+  background-color: var(--disabled);
+  box-shadow: none;
+}
+
+:where([class*="bg-card-deep"][class*="border"]) {
+  transition-property: border-color, background-color, box-shadow, transform;
+  transition-duration: 220ms;
+}
+
+:where([class*="bg-card-deep"][class*="border"]):hover {
+  border-color: color-mix(in srgb, var(--fox-red) 72%, transparent);
+  box-shadow: 0 14px 38px var(--shadow-red);
+}
+
+.hero-fox-atmosphere {
+  background:
+    radial-gradient(circle at 72% 34%, color-mix(in srgb, var(--fox-glow) 13%, transparent), transparent 26%),
+    radial-gradient(circle at 20% 18%, color-mix(in srgb, var(--fox-red) 30%, transparent), transparent 36%),
+    linear-gradient(180deg, color-mix(in srgb, var(--background) 48%, transparent), var(--background) 90%);
+}
+
+.about-fox-atmosphere {
+  background:
+    radial-gradient(circle at 22% 18%, color-mix(in srgb, var(--fox-red) 28%, transparent), transparent 34%),
+    radial-gradient(circle at 78% 30%, color-mix(in srgb, var(--plum) 24%, transparent), transparent 30%),
+    linear-gradient(180deg, color-mix(in srgb, var(--background) 20%, transparent), var(--background) 94%);
+}
+
+.fox-banner {
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--fox-red) 68%, transparent), color-mix(in srgb, var(--background) 96%, transparent) 55%, color-mix(in srgb, var(--plum) 46%, transparent));
+}
+
+.fox-highlight {
+  background:
+    radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--antique-gold) 18%, transparent), transparent 34%),
+    linear-gradient(135deg, color-mix(in srgb, var(--fox-red) 38%, transparent), color-mix(in srgb, var(--card-muted) 96%, transparent));
+}
+
+.fox-section-wash {
+  background:
+    linear-gradient(120deg, color-mix(in srgb, var(--fox-red) 18%, transparent), transparent 38%),
+    radial-gradient(circle at 82% 20%, color-mix(in srgb, var(--antique-gold) 11%, transparent), transparent 25%);
+}
+
+.mystical-card-surface {
+  background:
+    radial-gradient(circle at 50% 18%, color-mix(in srgb, var(--fox-glow) 19%, transparent), transparent 33%),
+    linear-gradient(160deg, color-mix(in srgb, var(--plum) 55%, transparent), color-mix(in srgb, var(--card-muted) 96%, transparent) 45%, color-mix(in srgb, var(--fox-red) 44%, transparent));
+}
+
 .sacred-grain {
   pointer-events: none;
   opacity: 0.32;
   background-image:
-    radial-gradient(circle at 20% 30%, rgba(232, 223, 207, 0.09) 0 1px, transparent 1px),
-    radial-gradient(circle at 70% 60%, rgba(184, 146, 79, 0.08) 0 1px, transparent 1px);
+    radial-gradient(circle at 20% 30%, color-mix(in srgb, var(--foreground) 9%, transparent) 0 1px, transparent 1px),
+    radial-gradient(circle at 70% 60%, color-mix(in srgb, var(--fox-glow) 9%, transparent) 0 1px, transparent 1px);
   background-size: 34px 34px, 47px 47px;
   mix-blend-mode: screen;
 }

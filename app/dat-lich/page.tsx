@@ -7,8 +7,14 @@ export const metadata = {
   description: "Đặt lịch đọc Tarot tại Huyền Cảnh.",
 };
 
-export default async function BookingPage() {
+type Props = {
+  searchParams: Promise<{ service?: string }>;
+};
+
+export default async function BookingPage({ searchParams }: Props) {
+  const params = await searchParams;
   const services = await getActiveServices();
+  const initialServiceId = services.some((service) => service.id === params.service) ? params.service : undefined;
 
   return (
     <>
@@ -21,7 +27,7 @@ export default async function BookingPage() {
             Gửi yêu cầu đặt lịch đọc Tarot. Thông tin sẽ được xác nhận trước khi phiên đọc diễn ra.
           </p>
           <div className="mt-12">
-            <BookingForm services={services} />
+            <BookingForm services={services} initialServiceId={initialServiceId} />
           </div>
         </div>
       </main>
