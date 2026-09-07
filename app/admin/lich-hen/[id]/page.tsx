@@ -38,6 +38,8 @@ export default async function AdminAppointmentDetailPage({ params }: { params: P
               <div><dt className="text-antique-gold">Thời lượng</dt><dd>{appointment.services?.duration_minutes ?? "-"} phút</dd></div>
               <div><dt className="text-antique-gold">Ngày giờ</dt><dd>{formatAdminAppointmentRange(appointment)}</dd></div>
               <div><dt className="text-antique-gold">Nguồn tạo</dt><dd>{appointment.source === "admin" ? "Quản trị" : "Website"}</dd></div>
+              <div><dt className="text-antique-gold">Hình thức</dt><dd>{appointment.reading_format === "online" ? "Online" : appointment.reading_format === "in_person" ? "Trực tiếp" : "Chưa chọn"}</dd></div>
+              <div><dt className="text-antique-gold">Chủ đề</dt><dd>{appointment.topic || "Chưa chọn"}</dd></div>
               <div><dt className="text-antique-gold">Ngày tạo</dt><dd>{formatAdminDate(appointment.created_at)}</dd></div>
               <div><dt className="text-antique-gold">Cập nhật</dt><dd>{appointment.updated_at ? formatAdminDate(appointment.updated_at) : "Chưa có"}</dd></div>
               <div><dt className="text-antique-gold">Khách hàng</dt><dd>{appointment.customers?.full_name ?? "Không rõ"}</dd></div>

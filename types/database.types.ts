@@ -10,7 +10,6 @@ export type AppointmentStatus =
 
 export type BlogPostStatus = "draft" | "published" | "archived";
 export type ServiceStatus = "draft" | "published" | "archived";
-export type ServiceReviewStatus = "pending" | "published" | "hidden";
 export type StoneContentStatus = "draft" | "published" | "hidden";
 
 type Role = "admin" | "staff";
@@ -180,38 +179,6 @@ export type Database = {
           deleted_at?: string | null;
         };
         Update: Partial<Database["public"]["Tables"]["appointments"]["Insert"]>;
-        Relationships: [];
-      };
-      service_reviews: {
-        Row: {
-          id: string;
-          customer_name: string;
-          avatar_url: string | null;
-          rating: number;
-          content: string;
-          service_id: string;
-          appointment_id: string | null;
-          is_verified: boolean;
-          status: ServiceReviewStatus;
-          display_order: number;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id?: string;
-          customer_name: string;
-          avatar_url?: string | null;
-          rating: number;
-          content: string;
-          service_id: string;
-          appointment_id?: string | null;
-          is_verified?: boolean;
-          status?: ServiceReviewStatus;
-          display_order?: number;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: Partial<Database["public"]["Tables"]["service_reviews"]["Insert"]>;
         Relationships: [];
       };
       working_hours: {

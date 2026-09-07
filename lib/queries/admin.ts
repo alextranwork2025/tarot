@@ -39,6 +39,8 @@ export type AdminAppointmentListItem = {
   end_time: string;
   status: AppointmentStatus;
   source: "website" | "admin";
+  reading_format: "online" | "in_person" | null;
+  topic: string | null;
   customer_message: string | null;
   internal_note: string | null;
   cancellation_reason: string | null;
@@ -196,7 +198,7 @@ export async function getAppointments(params: AppointmentListParams) {
   let query = admin
     .from("appointments")
     .select(
-      "id,booking_code,customer_id,service_id,appointment_date,start_time,end_time,status,source,customer_message,internal_note,cancellation_reason,created_at,updated_at",
+      "id,booking_code,customer_id,service_id,appointment_date,start_time,end_time,status,source,reading_format,topic,customer_message,internal_note,cancellation_reason,created_at,updated_at",
       { count: "exact" },
     )
     .is("deleted_at", null);
@@ -293,7 +295,7 @@ export async function getAppointmentDetail(id: string) {
   const { data: appointment, error } = await admin
     .from("appointments")
     .select(
-      "id,booking_code,customer_id,service_id,appointment_date,start_time,end_time,status,source,customer_message,internal_note,cancellation_reason,confirmed_at,cancelled_at,created_by,created_at,updated_at",
+      "id,booking_code,customer_id,service_id,appointment_date,start_time,end_time,status,source,reading_format,topic,customer_message,internal_note,cancellation_reason,confirmed_at,cancelled_at,created_by,created_at,updated_at",
     )
     .eq("id", id)
     .is("deleted_at", null)

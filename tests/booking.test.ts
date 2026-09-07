@@ -9,7 +9,7 @@ import {
   isInsideWorkingHours,
   isPastDate,
 } from "@/lib/booking/time";
-import { lookupSchema } from "@/lib/validations/booking";
+import { bookingRequestSchema, lookupSchema } from "@/lib/validations/booking";
 import { normalizeVietnamPhone } from "@/lib/validations/phone";
 
 describe("phone validation", () => {
@@ -67,6 +67,25 @@ describe("booking time calculations", () => {
 });
 
 describe("lookup and status rules", () => {
+  it("validates the public booking fields and consent", () => {
+    const validRequest = {
+      serviceId: "2c43f4c9-bb60-41a5-bc70-32f865390dda",
+      date: "2026-09-10",
+      startTime: "09:00",
+      fullName: "Nguyễn An",
+      phone: "0912345678",
+      email: "an@example.com",
+      readingFormat: "online",
+      topic: "career",
+      message: "Tôi muốn làm rõ định hướng công việc.",
+      consent: "on",
+      submissionToken: "194e3a66-b6b6-4ac9-9f48-2eb291748e26",
+      company: "",
+    };
+    expect(bookingRequestSchema.safeParse(validRequest).success).toBe(true);
+    expect(bookingRequestSchema.safeParse({ ...validRequest, consent: "" }).success).toBe(false);
+  });
+
   it("rejects wrong lookup code or phone values", () => {
     expect(lookupSchema.safeParse({ bookingCode: "", phone: "abc" }).success).toBe(false);
   });

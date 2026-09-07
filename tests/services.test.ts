@@ -34,6 +34,8 @@ describe("service slug and validation", () => {
         durationMinutes: 60,
         price: 500000,
         isActive: true,
+        isFeatured: true,
+        deliveryModes: JSON.stringify(["online", "in_person"]),
       }).success,
     ).toBe(true);
 

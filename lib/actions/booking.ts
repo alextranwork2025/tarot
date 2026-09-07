@@ -15,7 +15,7 @@ import {
 } from "@/lib/booking/time";
 import { checkRateLimit } from "@/lib/rate-limit/memory";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { bookingRequestSchema, cancelLookupSchema, lookupSchema } from "@/lib/validations/booking";
+import { availabilityRequestSchema, bookingRequestSchema, cancelLookupSchema, lookupSchema } from "@/lib/validations/booking";
 
 export type ActionState =
   | { ok: true; message: string; bookingCode?: string }
@@ -36,10 +36,13 @@ function isExclusionError(error: { code?: string; message?: string } | null) {
   return error?.code === "23P01" || error?.message?.toLowerCase().includes("conflict");
 }
 
+const bookingReceivedMessage =
+  "Huyền Cảnh đã nhận được yêu cầu của bạn. Chúng tôi sẽ sớm liên hệ để xác nhận lịch hẹn.";
+
 async function findBookableService(admin: ReturnType<typeof createAdminClient>, serviceId: string) {
   const full = await admin
     .from("services")
-    .select("id,duration_minutes,price,is_active")
+    .select("id,duration_minutes,price,is_active,delivery_modes")
     .eq("id", serviceId)
     .eq("is_active", true)
     .eq("status", "published")
@@ -58,6 +61,49 @@ async function findBookableService(admin: ReturnType<typeof createAdminClient>, 
     .eq("id", serviceId)
     .eq("is_active", true)
     .maybeSingle();
+}
+
+export type AvailabilityActionResult = { ok: true; slots: string[] } | { ok: false; message: string; slots: [] };
+
+export async function getAvailableBookingSlotsAction(serviceId: string, date: string): Promise<AvailabilityActionResult> {
+  const parsed = availabilityRequestSchema.safeParse({ serviceId, date });
+  if (!parsed.success || isPastDate(date)) return { ok: false, message: "Ngày hoặc dịch vụ không hợp lệ.", slots: [] };
+
+  const admin = createAdminClient();
+  const { data: service, error: serviceError } = await findBookableService(admin, serviceId);
+  if (serviceError || !service) return { ok: false, message: "Dịch vụ hiện không khả dụng.", slots: [] };
+
+  const dayOfWeek = combineDateAndTime(date, "12:00").getDay();
+  const [{ data: hours, error: hoursError }, { data: blocked }, { data: appointments }] = await Promise.all([
+    admin.from("working_hours").select("day_of_week,start_time,end_time,is_active").eq("day_of_week", dayOfWeek).eq("is_active", true),
+    admin.from("blocked_times").select("blocked_date,start_time,end_time").eq("blocked_date", date),
+    admin.from("appointments").select("appointment_date,start_time,end_time").eq("appointment_date", date).is("deleted_at", null).in("status", ["pending", "confirmed"]),
+  ]);
+  if (hoursError) return { ok: false, message: "Chưa thể tải lịch trống.", slots: [] };
+
+  const blockedRanges = (blocked ?? []).map((item) => ({
+    start: combineDateAndTime(item.blocked_date, item.start_time.slice(0, 5)),
+    end: combineDateAndTime(item.blocked_date, item.end_time.slice(0, 5)),
+  }));
+  const occupiedRanges = (appointments ?? []).map((item) => ({
+    start: combineDateAndTime(item.appointment_date, item.start_time.slice(0, 5)),
+    end: combineDateAndTime(item.appointment_date, item.end_time.slice(0, 5)),
+  }));
+  const slots = new Set<string>();
+
+  for (const hour of hours ?? []) {
+    let cursor = combineDateAndTime(date, hour.start_time.slice(0, 5));
+    const workingEnd = combineDateAndTime(date, hour.end_time.slice(0, 5));
+    while (calculateEndTime(cursor, service.duration_minutes) <= workingEnd) {
+      const range = { start: cursor, end: calculateEndTime(cursor, service.duration_minutes) };
+      if (!hasBlockedConflict(range, blockedRanges) && !hasAppointmentConflict(range, occupiedRanges) && cursor > new Date()) {
+        slots.add(format(cursor, "HH:mm"));
+      }
+      cursor = calculateEndTime(cursor, 30);
+    }
+  }
+
+  return { ok: true, slots: [...slots].sort() };
 }
 
 export async function createAppointmentAction(_previous: ActionState, formData: FormData): Promise<ActionState> {
@@ -99,7 +145,7 @@ export async function createAppointmentAction(_previous: ActionState, formData: 
   if (duplicate) {
     return {
       ok: true,
-      message: "Huyền Cảnh đã nhận được yêu cầu của bạn. Chúng tôi sẽ sớm liên hệ để xác nhận lịch hẹn.",
+      message: bookingReceivedMessage,
       bookingCode: duplicate.booking_code,
     };
   }
@@ -108,6 +154,13 @@ export async function createAppointmentAction(_previous: ActionState, formData: 
 
   if (serviceError || !service) {
     return { ok: false, message: "Dịch vụ hiện không khả dụng." };
+  }
+
+  const deliveryModes = "delivery_modes" in service && Array.isArray(service.delivery_modes)
+    ? service.delivery_modes as string[]
+    : ["online", "in_person"];
+  if (!deliveryModes.includes(parsed.data.readingFormat)) {
+    return { ok: false, message: "Hình thức xem bài không áp dụng cho dịch vụ này." };
   }
 
   const start = combineDateAndTime(parsed.data.date, parsed.data.startTime);
@@ -195,6 +248,17 @@ export async function createAppointmentAction(_previous: ActionState, formData: 
     submission_token: parsed.data.submissionToken,
   });
 
+  if (insertError?.code === "23505") {
+    const { data: concurrentDuplicate } = await admin
+      .from("appointments")
+      .select("booking_code")
+      .eq("submission_token", parsed.data.submissionToken)
+      .maybeSingle();
+    if (concurrentDuplicate) {
+      return { ok: true, message: bookingReceivedMessage, bookingCode: concurrentDuplicate.booking_code };
+    }
+  }
+
   if (isExclusionError(insertError)) {
     return { ok: false, message: "Khung giờ này vừa được giữ bởi yêu cầu khác. Vui lòng chọn giờ khác." };
   }
@@ -205,7 +269,7 @@ export async function createAppointmentAction(_previous: ActionState, formData: 
 
   return {
     ok: true,
-    message: "Huyền Cảnh đã nhận được yêu cầu của bạn. Chúng tôi sẽ sớm liên hệ để xác nhận lịch hẹn.",
+    message: bookingReceivedMessage,
     bookingCode,
   };
 }

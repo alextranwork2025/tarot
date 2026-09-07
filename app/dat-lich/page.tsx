@@ -1,5 +1,6 @@
 import { BookingForm } from "@/components/booking/BookingForm";
 import { Header } from "@/components/Header";
+import { getCustomerAccess } from "@/lib/auth/customer";
 import { getActiveServices } from "@/lib/queries/services";
 
 export const metadata = {
@@ -13,7 +14,7 @@ type Props = {
 
 export default async function BookingPage({ searchParams }: Props) {
   const params = await searchParams;
-  const services = await getActiveServices();
+  const [services, customerAccess] = await Promise.all([getActiveServices(), getCustomerAccess()]);
   const initialServiceId = services.some((service) => service.id === params.service) ? params.service : undefined;
 
   return (
@@ -27,7 +28,11 @@ export default async function BookingPage({ searchParams }: Props) {
             Gửi yêu cầu đặt lịch đọc Tarot. Thông tin sẽ được xác nhận trước khi phiên đọc diễn ra.
           </p>
           <div className="mt-12">
-            <BookingForm services={services} initialServiceId={initialServiceId} />
+            <BookingForm
+              services={services}
+              initialServiceId={initialServiceId}
+              customer={customerAccess.ok ? { fullName: customerAccess.customer.full_name, phone: customerAccess.customer.phone, email: customerAccess.customer.email ?? "" } : null}
+            />
           </div>
         </div>
       </main>
