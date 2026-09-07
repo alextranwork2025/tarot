@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { CalendarDays, ChevronDown, LogIn, Menu, UserRound } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { siteSignOutAction } from "@/lib/actions/auth";
 import { MobileMenu, type SiteNavigationItem } from "@/components/MobileMenu";
@@ -11,8 +11,24 @@ import type { HeaderViewer } from "@/types/header";
 
 const siteNavigation: SiteNavigationItem[] = [
   { label: "Trang chủ", href: "/", match: ["/"] },
-  { label: "Dịch vụ", href: "/#readings", anchorId: "readings", match: ["/#readings"] },
-  { label: "Bài viết", href: "/blog", match: ["/blog"] },
+  {
+    label: "Sản phẩm",
+    match: ["/dich-vu", "/hoc-tarot", "/lo-da-phong-thuy"],
+    children: [
+      { label: "Trải bài", href: "/dich-vu" },
+      { label: "Học Tarot", href: "/hoc-tarot" },
+      { label: "Đá năng lượng", href: "/lo-da-phong-thuy" },
+    ],
+  },
+  {
+    label: "Bài viết",
+    match: ["/blog", "/bai-viet/dao-nhan", "/bai-viet/review-bai-tarot", "/da-phong-thuy"],
+    children: [
+      { label: "Đạo nhân", href: "/bai-viet/dao-nhan" },
+      { label: "Review bài Tarot", href: "/bai-viet/review-bai-tarot" },
+      { label: "Đá phong thủy", href: "/da-phong-thuy" },
+    ],
+  },
   { label: "Giới thiệu", href: "/gioi-thieu", match: ["/gioi-thieu"] },
 ];
 
@@ -33,10 +49,13 @@ type SiteHeaderProps = {
 export function SiteHeader({ viewer }: SiteHeaderProps) {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
-  const [activeAnchor, setActiveAnchor] = useState("home");
   const [menuOpen, setMenuOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [pinnedDropdown, setPinnedDropdown] = useState<string | null>(null);
   const accountRef = useRef<HTMLDivElement>(null);
+  const navigationRef = useRef<HTMLElement>(null);
+  const dropdownButtonRefs = useRef<Record<string, HTMLButtonElement | null>>({});
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 12);
@@ -49,35 +68,11 @@ export function SiteHeader({ viewer }: SiteHeaderProps) {
     const closeMenus = window.setTimeout(() => {
       setMenuOpen(false);
       setAccountOpen(false);
+      setOpenDropdown(null);
+      setPinnedDropdown(null);
     }, 0);
 
     return () => window.clearTimeout(closeMenus);
-  }, [pathname]);
-
-  useEffect(() => {
-    if (pathname !== "/") {
-      return;
-    }
-
-    const sections = ["home", "readings", "about"]
-      .map((id) => document.getElementById(id))
-      .filter((section): section is HTMLElement => section !== null);
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-
-        if (visible?.target.id) {
-          setActiveAnchor(visible.target.id);
-        }
-      },
-      { rootMargin: "-30% 0px -58% 0px", threshold: [0.08, 0.2, 0.45] },
-    );
-
-    sections.forEach((section) => observer.observe(section));
-    return () => observer.disconnect();
   }, [pathname]);
 
   useEffect(() => {
@@ -108,17 +103,49 @@ export function SiteHeader({ viewer }: SiteHeaderProps) {
     };
   }, [accountOpen]);
 
-  const activeHref = useMemo(() => {
-    if (pathname === "/") {
-      return activeAnchor === "home" ? "/" : `/#${activeAnchor}`;
-    }
+  useEffect(() => {
+    if (!openDropdown) return;
 
-    const activeItem = siteNavigation.find((item) =>
-      item.match.some((route) => route !== "/" && isRouteMatch(pathname, route)),
-    );
+    const handlePointerDown = (event: PointerEvent) => {
+      if (navigationRef.current && !navigationRef.current.contains(event.target as Node)) {
+        setOpenDropdown(null);
+        setPinnedDropdown(null);
+      }
+    };
 
-    return activeItem?.href ?? pathname;
-  }, [activeAnchor, pathname]);
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        const button = dropdownButtonRefs.current[openDropdown];
+        setOpenDropdown(null);
+        setPinnedDropdown(null);
+        button?.focus();
+      }
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [openDropdown]);
+
+  const activeHref = pathname;
+  const closeNavigationDropdown = () => {
+    setOpenDropdown(null);
+    setPinnedDropdown(null);
+  };
+  const handleDropdownMenuKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (!["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) return;
+    const items = Array.from(event.currentTarget.querySelectorAll<HTMLAnchorElement>("[role=menuitem]"));
+    if (!items.length) return;
+    event.preventDefault();
+    const currentIndex = items.indexOf(document.activeElement as HTMLAnchorElement);
+    if (event.key === "Home") items[0].focus();
+    else if (event.key === "End") items.at(-1)?.focus();
+    else if (event.key === "ArrowDown") items[(currentIndex + 1 + items.length) % items.length].focus();
+    else items[(currentIndex - 1 + items.length) % items.length].focus();
+  };
 
   return (
     <>
@@ -137,17 +164,84 @@ export function SiteHeader({ viewer }: SiteHeaderProps) {
             Huyền Cảnh
           </Link>
 
-          <nav className="hidden items-center gap-2 lg:flex" aria-label="Điều hướng chính">
-            {siteNavigation.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                aria-current={activeHref === item.href ? "page" : undefined}
-                className="rounded-full px-4 py-2 text-sm font-medium text-stone-mist transition hover:bg-ivory/5 hover:text-ivory focus:outline-none focus:ring-2 focus:ring-antique-gold aria-[current=page]:bg-antique-gold/12 aria-[current=page]:text-antique-gold"
-              >
-                {item.label}
-              </Link>
-            ))}
+          <nav ref={navigationRef} className="hidden items-center gap-2 lg:flex" aria-label="Điều hướng chính">
+            {siteNavigation.map((item) => {
+              if (item.children) {
+                const dropdownOpen = openDropdown === item.label;
+                const itemActive = item.match.some((route) => isRouteMatch(pathname, route));
+                const dropdownId = item.label === "Sản phẩm" ? "desktop-products-menu" : "desktop-articles-menu";
+                return (
+                  <div
+                    key={item.label}
+                    className="relative"
+                    onMouseEnter={() => {
+                      if (pinnedDropdown !== item.label) setPinnedDropdown(null);
+                      setOpenDropdown(item.label);
+                    }}
+                    onMouseLeave={() => { if (pinnedDropdown !== item.label) setOpenDropdown(null); }}
+                  >
+                    <button
+                      ref={(button) => { dropdownButtonRefs.current[item.label] = button; }}
+                      type="button"
+                      aria-expanded={dropdownOpen}
+                      aria-haspopup="menu"
+                      aria-controls={dropdownId}
+                      aria-current={itemActive ? "page" : undefined}
+                      onClick={() => {
+                        const shouldClose = dropdownOpen && pinnedDropdown === item.label;
+                        setOpenDropdown(shouldClose ? null : item.label);
+                        setPinnedDropdown(shouldClose ? null : item.label);
+                        setAccountOpen(false);
+                      }}
+                      onKeyDown={(event) => {
+                        if (event.key === "ArrowDown") {
+                          event.preventDefault();
+                          const container = event.currentTarget.parentElement;
+                          setOpenDropdown(item.label);
+                          setPinnedDropdown(item.label);
+                          window.requestAnimationFrame(() => container?.querySelector<HTMLAnchorElement>("[role=menuitem]")?.focus());
+                        }
+                      }}
+                      className="inline-flex items-center gap-1 rounded-full px-4 py-2 text-sm font-medium text-stone-mist transition hover:bg-ivory/5 hover:text-ivory focus:outline-none focus:ring-2 focus:ring-antique-gold aria-[current=page]:bg-antique-gold/12 aria-[current=page]:text-antique-gold"
+                    >
+                      {item.label}
+                      <ChevronDown className={`transition-transform duration-200 ${dropdownOpen ? "rotate-180" : ""}`} size={15} aria-hidden="true" />
+                    </button>
+                    {dropdownOpen ? (
+                      <div className="absolute left-1/2 top-full z-50 w-60 -translate-x-1/2 pt-2">
+                        <div id={dropdownId} role="menu" onKeyDown={handleDropdownMenuKeyDown} className="rounded-md border border-gilded/35 bg-obsidian/96 p-2 shadow-2xl shadow-black/35 backdrop-blur-xl">
+                          {item.children.map((child) => (
+                            <Link
+                              key={child.href}
+                              href={child.href}
+                              role="menuitem"
+                              onClick={closeNavigationDropdown}
+                              aria-current={isRouteMatch(pathname, child.href) ? "page" : undefined}
+                              className="block rounded-sm px-3 py-3 text-sm text-stone-mist transition hover:bg-ivory/5 hover:text-ivory focus:outline-none focus:ring-2 focus:ring-antique-gold aria-[current=page]:text-antique-gold"
+                            >
+                              {child.label}
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                    ) : null}
+                  </div>
+                );
+              }
+
+              if (!item.href) return null;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={closeNavigationDropdown}
+                  aria-current={activeHref === item.href ? "page" : undefined}
+                  className="rounded-full px-4 py-2 text-sm font-medium text-stone-mist transition hover:bg-ivory/5 hover:text-ivory focus:outline-none focus:ring-2 focus:ring-antique-gold aria-[current=page]:bg-antique-gold/12 aria-[current=page]:text-antique-gold"
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
           </nav>
 
           <div className="flex items-center justify-end gap-3">
@@ -164,7 +258,7 @@ export function SiteHeader({ viewer }: SiteHeaderProps) {
               <AccountControl
                 viewer={viewer}
                 open={accountOpen}
-                onToggle={() => setAccountOpen((current) => !current)}
+                onToggle={() => { closeNavigationDropdown(); setAccountOpen((current) => !current); }}
                 onClose={() => setAccountOpen(false)}
                 pathname={pathname}
               />
@@ -176,7 +270,7 @@ export function SiteHeader({ viewer }: SiteHeaderProps) {
               aria-label="Mở menu"
               aria-expanded={menuOpen}
               aria-controls="site-mobile-menu"
-              onClick={() => setMenuOpen(true)}
+              onClick={() => { closeNavigationDropdown(); setMenuOpen(true); }}
             >
               <Menu size={20} aria-hidden="true" />
             </button>

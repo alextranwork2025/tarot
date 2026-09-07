@@ -26,6 +26,10 @@ export type PublicService = {
   short_description: string | null;
   content: string | null;
   cover_image_url: string | null;
+  suitable_for: string | null;
+  benefits: string | null;
+  delivery_modes: string[];
+  is_featured: boolean;
   duration_minutes: number;
   price: number;
 };
@@ -83,43 +87,9 @@ type ServiceRowLike = {
   status?: ServiceStatusValue;
   published_at?: string | null;
   deleted_at?: string | null;
+  delivery_modes?: string[];
+  is_featured?: boolean;
 };
-
-const fallbackServices: PublicService[] = [
-  {
-    id: "00000000-0000-4000-8000-000000000001",
-    name: "Thông điệp hôm nay",
-    slug: "thong-diep-hom-nay",
-    description: "Rút một lá dành cho suy ngẫm nhanh.",
-    short_description: "Một lá bài ngắn gọn để soi chiếu câu hỏi hiện tại.",
-    content: "Phiên đọc ngắn dành cho những lúc bạn cần một điểm tựa nhẹ nhàng để nhìn lại điều đang diễn ra.",
-    cover_image_url: null,
-    duration_minutes: 30,
-    price: 0,
-  },
-  {
-    id: "00000000-0000-4000-8000-000000000002",
-    name: "Dòng chảy thời gian",
-    slug: "dong-chay-thoi-gian",
-    description: "Trải ba lá: quá khứ, hiện tại và khả năng.",
-    short_description: "Trải bài ba lá để nhìn mạch chuyện qua nhiều lớp thời gian.",
-    content: "Phiên đọc giúp bạn quan sát quá khứ, hiện tại và hướng mở kế tiếp mà không biến Tarot thành lời phán quyết.",
-    cover_image_url: null,
-    duration_minutes: 60,
-    price: 0,
-  },
-  {
-    id: "00000000-0000-4000-8000-000000000003",
-    name: "Hành trình bóng tối",
-    slug: "hanh-trinh-bong-toi",
-    description: "Phiên đọc chuyên sâu cho các khuôn mẫu nội tâm.",
-    short_description: "Không gian đọc sâu cho nỗi sợ, khuôn mẫu và khả năng chuyển hóa.",
-    content: "Phiên đọc chuyên sâu dành cho những câu hỏi cần thời gian, sự thành thật và một nhịp quan sát chậm rãi.",
-    cover_image_url: null,
-    duration_minutes: 90,
-    price: 0,
-  },
-];
 
 function sanitizePage(value?: number) {
   if (!value || Number.isNaN(value) || value < 1) {
@@ -196,6 +166,8 @@ function normalizeService(service: ServiceRowLike): AdminService {
     created_at: service.created_at ?? new Date(0).toISOString(),
     updated_at: service.updated_at ?? null,
     deleted_at: service.deleted_at ?? null,
+    delivery_modes: service.delivery_modes?.length ? service.delivery_modes : ["online", "in_person"],
+    is_featured: service.is_featured ?? false,
   };
 }
 
@@ -209,29 +181,12 @@ function toPublicService(service: ServiceRowLike): PublicService {
     short_description: normalized.short_description,
     content: normalized.content,
     cover_image_url: normalized.cover_image_url,
+    suitable_for: normalized.suitable_for,
+    benefits: normalized.benefits,
+    delivery_modes: normalized.delivery_modes,
+    is_featured: normalized.is_featured,
     duration_minutes: normalized.duration_minutes,
     price: normalized.price,
-  };
-}
-
-function fallbackDetail(slug: string): PublicServiceDetail | null {
-  const service = fallbackServices.find((item) => item.slug === slug);
-  if (!service) {
-    return null;
-  }
-
-  return {
-    ...service,
-    suitable_for: null,
-    benefits: null,
-    process: null,
-    preparation_notes: null,
-    faq: [],
-    testimonials: [],
-    seo_title: null,
-    seo_description: null,
-    published_at: null,
-    updated_at: null,
   };
 }
 
@@ -245,13 +200,13 @@ export function parseServiceStatus(value?: string): ServiceStatusValue | "all" {
 
 export async function getActiveServices() {
   if (!process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY) {
-    return fallbackServices;
+    return [];
   }
 
   const supabase = await createClient();
   const full = await supabase
     .from("services")
-    .select("id,name,slug,description,short_description,content,cover_image_url,duration_minutes,price")
+    .select("id,name,slug,description,short_description,content,cover_image_url,suitable_for,benefits,delivery_modes,is_featured,duration_minutes,price")
     .eq("is_active", true)
     .eq("status", "published")
     .not("published_at", "is", null)
@@ -271,14 +226,14 @@ export async function getActiveServices() {
     .order("display_order", { ascending: true })
     .order("created_at", { ascending: true });
 
-  return legacy.error ? fallbackServices : legacy.data.map((service) => toPublicService(service));
+  return legacy.error ? [] : legacy.data.map((service) => toPublicService(service));
 }
 
 export async function getAllServicesForAdmin() {
   const admin = createAdminClient();
   const full = await admin
     .from("services")
-    .select("id,name,slug,description,short_description,content,cover_image_url,duration_minutes,price,is_active,display_order,status,published_at,created_at,updated_at,deleted_at")
+    .select("id,name,slug,description,short_description,content,cover_image_url,suitable_for,benefits,delivery_modes,is_featured,duration_minutes,price,is_active,display_order,status,published_at,created_at,updated_at,deleted_at")
     .is("deleted_at", null)
     .order("display_order", { ascending: true })
     .order("created_at", { ascending: true });
@@ -412,10 +367,10 @@ export const getPublishedServiceBySlug = cache(async (slug: string) => {
     .maybeSingle();
 
   if (legacy.error) {
-    return fallbackDetail(slug);
+    return null;
   }
 
-  return legacy.data ? (normalizeService(legacy.data) as PublicServiceDetail) : fallbackDetail(slug);
+  return legacy.data ? (normalizeService(legacy.data) as PublicServiceDetail) : null;
 });
 
 export async function getPublishedServiceSitemapEntries() {

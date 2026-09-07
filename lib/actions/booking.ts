@@ -69,7 +69,11 @@ export async function createAppointmentAction(_previous: ActionState, formData: 
     phone: toFormValue(formData, "phone"),
     email: toFormValue(formData, "email"),
     birthDate: toFormValue(formData, "birthDate"),
+    readingFormat: toFormValue(formData, "readingFormat"),
+    topic: toFormValue(formData, "topic"),
     message: toFormValue(formData, "message"),
+    consent: toFormValue(formData, "consent"),
+    submissionToken: toFormValue(formData, "submissionToken"),
     company: toFormValue(formData, "company"),
   });
 
@@ -87,6 +91,19 @@ export async function createAppointmentAction(_previous: ActionState, formData: 
   }
 
   const admin = createAdminClient();
+  const { data: duplicate } = await admin
+    .from("appointments")
+    .select("booking_code")
+    .eq("submission_token", parsed.data.submissionToken)
+    .maybeSingle();
+  if (duplicate) {
+    return {
+      ok: true,
+      message: "Huyền Cảnh đã nhận được yêu cầu của bạn. Chúng tôi sẽ sớm liên hệ để xác nhận lịch hẹn.",
+      bookingCode: duplicate.booking_code,
+    };
+  }
+
   const { data: service, error: serviceError } = await findBookableService(admin, parsed.data.serviceId);
 
   if (serviceError || !service) {
@@ -173,6 +190,9 @@ export async function createAppointmentAction(_previous: ActionState, formData: 
     status: "pending",
     source: "website",
     customer_message: parsed.data.message || null,
+    reading_format: parsed.data.readingFormat,
+    topic: parsed.data.topic,
+    submission_token: parsed.data.submissionToken,
   });
 
   if (isExclusionError(insertError)) {
@@ -183,7 +203,11 @@ export async function createAppointmentAction(_previous: ActionState, formData: 
     return { ok: false, message: "Chưa thể gửi yêu cầu đặt lịch. Vui lòng thử lại sau." };
   }
 
-  return { ok: true, message: "Yêu cầu đặt lịch đã được ghi nhận.", bookingCode };
+  return {
+    ok: true,
+    message: "Huyền Cảnh đã nhận được yêu cầu của bạn. Chúng tôi sẽ sớm liên hệ để xác nhận lịch hẹn.",
+    bookingCode,
+  };
 }
 
 export async function lookupAppointmentAction(_previous: ActionState, formData: FormData): Promise<ActionState> {

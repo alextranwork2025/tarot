@@ -27,6 +27,8 @@ export default async function AdminPage() {
             ["/admin/lich-hen", "Lịch hẹn"],
             ["/admin/khach-hang", "Khách hàng"],
             ["/admin/dich-vu", "Dịch vụ"],
+            ["/admin/loai-da", "Loại đá"],
+            ["/admin/lo-da", "Lọ đá"],
             ["/admin/lich-lam-viec", "Lịch làm việc"],
             ["/admin/bai-viet", "Bài viết"],
           ].map(([href, label]) => (

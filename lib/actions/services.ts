@@ -49,6 +49,8 @@ function servicePayload(data: ServiceFormValues, publishedAt?: string | null) {
     price: data.price,
     display_order: data.displayOrder,
     is_active: data.isActive,
+    is_featured: data.isFeatured,
+    delivery_modes: data.deliveryModes,
     status: data.status,
     published_at: data.status === "published" ? publishedAt ?? now : null,
   };
@@ -107,6 +109,8 @@ function readServiceForm(formData: FormData) {
     durationMinutes: readString(formData, "durationMinutes"),
     price: readString(formData, "price") || "0",
     isActive: readString(formData, "isActive") === "on",
+    isFeatured: readString(formData, "isFeatured") === "on",
+    deliveryModes: readString(formData, "deliveryModes"),
     expectedUpdatedAt: readString(formData, "expectedUpdatedAt"),
   };
 }

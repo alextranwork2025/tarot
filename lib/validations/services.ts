@@ -86,6 +86,8 @@ export const serviceFormSchema = z.object({
   durationMinutes: z.coerce.number().int().min(15).max(480),
   price: z.coerce.number().int().min(0),
   isActive: z.coerce.boolean(),
+  isFeatured: z.coerce.boolean(),
+  deliveryModes: z.preprocess(parseJsonArray, z.array(z.enum(["online", "in_person"])).min(1).max(2)),
   expectedUpdatedAt: z.string().optional().or(z.literal("")),
 });
 

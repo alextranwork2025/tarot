@@ -16,6 +16,24 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+## Environment
+
+The stone jar contact buttons use the following centralized configuration:
+
+```bash
+NEXT_PUBLIC_SITE_URL=https://your-domain.example
+NEXT_PUBLIC_CONTACT_URL=https://m.me/your-page?ref={message}
+```
+
+`NEXT_PUBLIC_CONTACT_URL` may point to Messenger, Zalo, another chat URL, or a
+`tel:` URL. The optional `{message}` token is replaced with an encoded message
+containing the stone jar name and detail URL. Without this variable, the site
+falls back to a prefilled email link.
+
+Apply `supabase/migrations/20260907074751_add_stones_and_stone_jars.sql` to the
+same Supabase project configured by `NEXT_PUBLIC_SUPABASE_URL` before using the
+stone CMS.
+
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.

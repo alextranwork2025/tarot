@@ -27,6 +27,8 @@ type ServiceEditorValues = {
   durationMinutes: number;
   price: number;
   isActive: boolean;
+  isFeatured: boolean;
+  deliveryModes: Array<"online" | "in_person">;
 };
 
 const emptyState: ServiceActionState = { ok: false, message: "" };
@@ -68,6 +70,8 @@ export function ServiceForm({ service }: { service?: AdminService }) {
       durationMinutes: service?.duration_minutes ?? 60,
       price: service?.price ?? 0,
       isActive: service?.is_active ?? true,
+      isFeatured: service?.is_featured ?? false,
+      deliveryModes: (service?.delivery_modes as Array<"online" | "in_person"> | undefined) ?? ["online", "in_person"],
     },
   });
   const [pending, startTransition] = useTransition();
@@ -88,8 +92,10 @@ export function ServiceForm({ service }: { service?: AdminService }) {
       formData.set("expectedUpdatedAt", service.updated_at ?? "");
     }
     Object.entries(values).forEach(([key, value]) => {
-      if (key === "isActive") {
-        if (value) formData.set("isActive", "on");
+      if (key === "isActive" || key === "isFeatured") {
+        if (value) formData.set(key, "on");
+      } else if (key === "deliveryModes") {
+        formData.set(key, JSON.stringify(value));
       } else {
         formData.set(key, String(value ?? ""));
       }
@@ -247,10 +253,17 @@ export function ServiceForm({ service }: { service?: AdminService }) {
           </label>
         </div>
 
-        <label className="flex items-center gap-2 text-sm text-stone-mist">
-          <input {...register("isActive")} type="checkbox" />
-          Bật dịch vụ
-        </label>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <fieldset className="grid gap-2 text-sm text-stone-mist">
+            <legend className="mb-1 text-ivory">Hình thức xem bài</legend>
+            <label className="flex items-center gap-2"><input {...register("deliveryModes")} type="checkbox" value="online" /> Online</label>
+            <label className="flex items-center gap-2"><input {...register("deliveryModes")} type="checkbox" value="in_person" /> Trực tiếp</label>
+          </fieldset>
+          <div className="grid content-start gap-3 text-sm text-stone-mist">
+            <label className="flex items-center gap-2"><input {...register("isActive")} type="checkbox" /> Bật dịch vụ</label>
+            <label className="flex items-center gap-2"><input {...register("isFeatured")} type="checkbox" /> Đánh dấu phổ biến</label>
+          </div>
+        </div>
       </fieldset>
 
       <button disabled={pending} className="min-h-11 rounded-full bg-antique-gold px-5 text-sm font-semibold text-obsidian hover:bg-ivory disabled:cursor-not-allowed disabled:opacity-60">

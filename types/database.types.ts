@@ -10,6 +10,8 @@ export type AppointmentStatus =
 
 export type BlogPostStatus = "draft" | "published" | "archived";
 export type ServiceStatus = "draft" | "published" | "archived";
+export type ServiceReviewStatus = "pending" | "published" | "hidden";
+export type StoneContentStatus = "draft" | "published" | "hidden";
 
 type Role = "admin" | "staff";
 
@@ -88,6 +90,8 @@ export type Database = {
           duration_minutes: number;
           price: number;
           is_active: boolean;
+          is_featured: boolean;
+          delivery_modes: string[];
           slug: string;
           display_order: number;
           created_at: string;
@@ -115,6 +119,8 @@ export type Database = {
           duration_minutes: number;
           price?: number;
           is_active?: boolean;
+          is_featured?: boolean;
+          delivery_modes?: string[];
           display_order?: number;
           created_at?: string;
           updated_at?: string | null;
@@ -136,6 +142,9 @@ export type Database = {
           status: AppointmentStatus;
           source: "website" | "admin";
           customer_message: string | null;
+          reading_format: string | null;
+          topic: string | null;
+          submission_token: string | null;
           internal_note: string | null;
           cancellation_reason: string | null;
           confirmed_at: string | null;
@@ -158,6 +167,9 @@ export type Database = {
           status?: AppointmentStatus;
           source?: "website" | "admin";
           customer_message?: string | null;
+          reading_format?: string | null;
+          topic?: string | null;
+          submission_token?: string | null;
           internal_note?: string | null;
           cancellation_reason?: string | null;
           confirmed_at?: string | null;
@@ -168,6 +180,38 @@ export type Database = {
           deleted_at?: string | null;
         };
         Update: Partial<Database["public"]["Tables"]["appointments"]["Insert"]>;
+        Relationships: [];
+      };
+      service_reviews: {
+        Row: {
+          id: string;
+          customer_name: string;
+          avatar_url: string | null;
+          rating: number;
+          content: string;
+          service_id: string;
+          appointment_id: string | null;
+          is_verified: boolean;
+          status: ServiceReviewStatus;
+          display_order: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          customer_name: string;
+          avatar_url?: string | null;
+          rating: number;
+          content: string;
+          service_id: string;
+          appointment_id?: string | null;
+          is_verified?: boolean;
+          status?: ServiceReviewStatus;
+          display_order?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["service_reviews"]["Insert"]>;
         Relationships: [];
       };
       working_hours: {
@@ -272,9 +316,69 @@ export type Database = {
         Update: Partial<Database["public"]["Tables"]["blog_posts"]["Insert"]>;
         Relationships: [];
       };
+      stones: {
+        Row: {
+          id: string; name: string; slug: string; short_description: string | null;
+          content: string | null; benefits: string | null; suitable_for: string | null;
+          elements: string[]; zodiac_signs: string[]; colors: string[]; origin: string | null;
+          featured_image: string | null; gallery: string[]; status: StoneContentStatus;
+          is_featured: boolean; seo_title: string | null; seo_description: string | null;
+          published_at: string | null; created_by: string | null; created_at: string;
+          updated_at: string; deleted_at: string | null;
+        };
+        Insert: {
+          id?: string; name: string; slug: string; short_description?: string | null;
+          content?: string | null; benefits?: string | null; suitable_for?: string | null;
+          elements?: string[]; zodiac_signs?: string[]; colors?: string[]; origin?: string | null;
+          featured_image?: string | null; gallery?: string[]; status?: StoneContentStatus;
+          is_featured?: boolean; seo_title?: string | null; seo_description?: string | null;
+          published_at?: string | null; created_by?: string | null; created_at?: string;
+          updated_at?: string; deleted_at?: string | null;
+        };
+        Update: Partial<Database["public"]["Tables"]["stones"]["Insert"]>;
+        Relationships: [];
+      };
+      stone_jars: {
+        Row: {
+          id: string; name: string; slug: string; short_description: string | null;
+          content: string | null; meaning: string | null; usage: string | null;
+          featured_image: string | null; gallery: string[]; price: number | null;
+          price_label: string; contact_message: string | null; status: StoneContentStatus;
+          is_featured: boolean; seo_title: string | null; seo_description: string | null;
+          published_at: string | null; created_by: string | null; created_at: string;
+          updated_at: string; deleted_at: string | null;
+        };
+        Insert: {
+          id?: string; name: string; slug: string; short_description?: string | null;
+          content?: string | null; meaning?: string | null; usage?: string | null;
+          featured_image?: string | null; gallery?: string[]; price?: number | null;
+          price_label?: string; contact_message?: string | null; status?: StoneContentStatus;
+          is_featured?: boolean; seo_title?: string | null; seo_description?: string | null;
+          published_at?: string | null; created_by?: string | null; created_at?: string;
+          updated_at?: string; deleted_at?: string | null;
+        };
+        Update: Partial<Database["public"]["Tables"]["stone_jars"]["Insert"]>;
+        Relationships: [];
+      };
+      stone_jar_items: {
+        Row: {
+          id: string; stone_jar_id: string; stone_id: string; description: string | null;
+          quantity: string | null; display_order: number; created_at: string;
+        };
+        Insert: {
+          id?: string; stone_jar_id: string; stone_id: string; description?: string | null;
+          quantity?: string | null; display_order?: number; created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["stone_jar_items"]["Insert"]>;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {
+      replace_stone_jar_items: {
+        Args: { p_stone_jar_id: string; p_items: Json };
+        Returns: undefined;
+      };
       admin_change_appointment_status: {
         Args: {
           p_appointment_id: string;
@@ -297,6 +401,7 @@ export type Database = {
       appointment_status: AppointmentStatus;
       blog_post_status: BlogPostStatus;
       service_status: ServiceStatus;
+      stone_content_status: StoneContentStatus;
     };
     CompositeTypes: Record<string, never>;
   };

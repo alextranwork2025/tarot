@@ -1,0 +1,9 @@
+import Link from "next/link";
+import { MarkdownContent } from "@/components/blog/MarkdownContent";
+import { AdminStoneActions } from "@/components/stones/AdminStoneActions";
+import { StoneImage } from "@/components/stones/StoneImage";
+import { requireAdminProfile } from "@/lib/auth/admin";
+import { getAdminStone } from "@/lib/queries/stones";
+import { stoneStatusLabels } from "@/lib/validations/stones";
+export const dynamic = "force-dynamic";
+export default async function AdminStoneDetail({ params }: { params: Promise<{ id: string }> }) { await requireAdminProfile(); const { id } = await params; const stone = await getAdminStone(id); return <main className="min-h-screen px-5 py-10 md:px-8"><div className="mx-auto max-w-6xl"><Link href="/admin/loai-da" className="text-sm text-antique-gold">← Quản lý loại đá</Link><div className="mt-4 flex flex-col gap-4 md:flex-row md:items-end md:justify-between"><div><h1 className="font-serif text-5xl text-ivory">{stone.name}</h1><p className="mt-2 text-stone-mist">{stoneStatusLabels[stone.status]} · /{stone.slug}</p></div><AdminStoneActions item={stone} kind="stone" /></div><section className="mt-8 grid gap-8 rounded-lg border border-gilded/40 bg-card-deep/75 p-5 lg:grid-cols-[320px_1fr]"><StoneImage src={stone.featured_image} alt={stone.name} square /><div>{stone.short_description ? <p className="text-lg text-stone-mist">{stone.short_description}</p> : null}<dl className="mt-5 grid gap-3 text-sm text-stone-mist"><div><dt className="text-antique-gold">Mệnh</dt><dd>{stone.elements.join(", ") || "-"}</dd></div><div><dt className="text-antique-gold">Cung hoàng đạo</dt><dd>{stone.zodiac_signs.join(", ") || "-"}</dd></div><div><dt className="text-antique-gold">Màu sắc</dt><dd>{stone.colors.join(", ") || "-"}</dd></div></dl>{stone.content ? <div className="mt-8"><MarkdownContent content={stone.content} /></div> : null}</div></section></div></main>; }
