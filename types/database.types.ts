@@ -11,6 +11,7 @@ export type AppointmentStatus =
 export type BlogPostStatus = "draft" | "published" | "archived";
 export type ServiceStatus = "draft" | "published" | "archived";
 export type StoneContentStatus = "draft" | "published" | "hidden";
+export type BraceletAvailability = "available" | "made_to_order" | "out_of_stock";
 
 type Role = "admin" | "staff";
 
@@ -327,6 +328,120 @@ export type Database = {
         Update: Partial<Database["public"]["Tables"]["stone_jars"]["Insert"]>;
         Relationships: [];
       };
+      bracelets: {
+        Row: {
+          id: string;
+          product_code: string;
+          name: string;
+          slug: string;
+          featured_image: string;
+          short_description: string;
+          content: string;
+          bead_sizes_mm: number[];
+          wrist_sizes_cm: string[];
+          gallery: string[];
+          colors: string[];
+          style: string | null;
+          bead_count: string | null;
+          cord_material: string | null;
+          accessory_material: string | null;
+          price: number | null;
+          availability: BraceletAvailability;
+          meaning: string | null;
+          suitable_elements: string[];
+          wrist_measurement_guide: string | null;
+          care_guide: string | null;
+          policy: string | null;
+          origin: string | null;
+          treatment: string | null;
+          certification: string | null;
+          is_featured: boolean;
+          display_order: number;
+          status: StoneContentStatus;
+          seo_title: string | null;
+          seo_description: string | null;
+          published_at: string | null;
+          created_by: string | null;
+          created_at: string;
+          updated_at: string;
+          deleted_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          product_code?: string;
+          name: string;
+          slug: string;
+          featured_image: string;
+          short_description: string;
+          content: string;
+          bead_sizes_mm?: number[];
+          wrist_sizes_cm?: string[];
+          gallery?: string[];
+          colors?: string[];
+          style?: string | null;
+          bead_count?: string | null;
+          cord_material?: string | null;
+          accessory_material?: string | null;
+          price?: number | null;
+          availability?: BraceletAvailability;
+          meaning?: string | null;
+          suitable_elements?: string[];
+          wrist_measurement_guide?: string | null;
+          care_guide?: string | null;
+          policy?: string | null;
+          origin?: string | null;
+          treatment?: string | null;
+          certification?: string | null;
+          is_featured?: boolean;
+          display_order?: number;
+          status?: StoneContentStatus;
+          seo_title?: string | null;
+          seo_description?: string | null;
+          published_at?: string | null;
+          created_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+          deleted_at?: string | null;
+        };
+        Update: Partial<Database["public"]["Tables"]["bracelets"]["Insert"]>;
+        Relationships: [];
+      };
+      bracelet_stones: {
+        Row: {
+          id: string;
+          bracelet_id: string;
+          stone_id: string;
+          display_order: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          bracelet_id: string;
+          stone_id: string;
+          display_order?: number;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["bracelet_stones"]["Insert"]>;
+        Relationships: [];
+      };
+      site_contact_settings: {
+        Row: {
+          id: number;
+          zalo_url: string | null;
+          facebook_url: string | null;
+          updated_by: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          id?: number;
+          zalo_url?: string | null;
+          facebook_url?: string | null;
+          updated_by?: string | null;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["site_contact_settings"]["Insert"]>;
+        Relationships: [];
+      };
       stone_jar_items: {
         Row: {
           id: string; stone_jar_id: string; stone_id: string; description: string | null;
@@ -344,6 +459,10 @@ export type Database = {
     Functions: {
       replace_stone_jar_items: {
         Args: { p_stone_jar_id: string; p_items: Json };
+        Returns: undefined;
+      };
+      replace_bracelet_stones: {
+        Args: { p_bracelet_id: string; p_stone_ids: Json };
         Returns: undefined;
       };
       admin_change_appointment_status: {
@@ -366,6 +485,7 @@ export type Database = {
       app_role: Role;
       appointment_source: "website" | "admin";
       appointment_status: AppointmentStatus;
+      bracelet_availability: BraceletAvailability;
       blog_post_status: BlogPostStatus;
       service_status: ServiceStatus;
       stone_content_status: StoneContentStatus;

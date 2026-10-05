@@ -10,7 +10,7 @@ const extensions = new Map([["image/jpeg", "jpg"], ["image/png", "png"], ["image
 
 export type StoneImageUploadResult = { ok: true; url: string; path: string } | { ok: false; message: string };
 
-export async function uploadStoneImage(file: File | null, folder: "stones" | "jars"): Promise<StoneImageUploadResult | null> {
+export async function uploadStoneImage(file: File | null, folder: "stones" | "jars" | "bracelets"): Promise<StoneImageUploadResult | null> {
   if (!file || file.size === 0) return null;
   const parsed = stoneImageUploadSchema.safeParse({ mimeType: file.type, size: file.size });
   if (!parsed.success) {
@@ -23,7 +23,7 @@ export async function uploadStoneImage(file: File | null, folder: "stones" | "ja
   return error ? { ok: false, message: `Không thể tải ảnh: ${error.message}` } : { ok: true, path, url: `/stone-images/${path}` };
 }
 
-export async function uploadStoneImages(files: File[], folder: "stones" | "jars") {
+export async function uploadStoneImages(files: File[], folder: "stones" | "jars" | "bracelets") {
   const urls: string[] = [];
   for (const file of files) {
     const result = await uploadStoneImage(file, folder);

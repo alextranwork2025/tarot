@@ -13,11 +13,12 @@ const siteNavigation: SiteNavigationItem[] = [
   { label: "Trang chủ", href: "/", match: ["/"] },
   {
     label: "Sản phẩm",
-    match: ["/dich-vu", "/hoc-tarot", "/lo-da-phong-thuy"],
+    match: ["/dich-vu", "/hoc-tarot", "/lo-da-phong-thuy", "/vong-tay-phong-thuy"],
     children: [
       { label: "Trải bài", href: "/dich-vu" },
       { label: "Học Tarot", href: "/hoc-tarot" },
       { label: "Đá năng lượng", href: "/lo-da-phong-thuy" },
+      { label: "Vòng tay phong thủy", href: "/vong-tay-phong-thuy" },
     ],
   },
   {
